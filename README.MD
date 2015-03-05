@@ -1,0 +1,1 @@
+Phoca Maps Plugin is Joomla! CMS extension. Plugin which displays map in article.
