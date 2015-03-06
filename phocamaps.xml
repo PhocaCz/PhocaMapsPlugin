@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension group="content" method="upgrade" type="plugin" version="3">
+	<name>Phoca Maps Plugin</name>
+	<creationDate>30/07/2014</creationDate>
+	<author>Jan Pavelka (www.phoca.cz)</author>
+	<authorEmail></authorEmail>
+	<authorUrl>www.phoca.cz</authorUrl>
+	<copyright>Jan Pavelka</copyright>
+	<license>GNU/GPL</license>
+	<version>3.0.2</version>
+
+	<description>PLG_CONTENT_PHOCAMAPS_DESCRIPTION</description>
+
+	<files>
+		<filename plugin="phocamaps">phocamaps.php</filename>
+		<filename >index.html</filename>
+	</files>
+	
+	<media destination="plg_content_phocamaps" folder="media">
+		<filename>index.html</filename>
+		<folder>css</folder>
+	</media>
+
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.ini</language>
+	</languages>
+	<administration>
+		<languages>
+			<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.ini</language>
+		</languages>
+	</administration>
+	
+	<config>
+	
+	<fields name="params" addpath="/administrator/components/com_phocamaps/models/fields">
+		
+		<fieldset name="basic">
+		
+		<field name="display_map_description" type="list" default="0" label="PLG_CONTENT_PHOCAMAPS_DISPLAY_MAP_DESCRIPTION_LABEL" description="PLG_CONTENT_PHOCAMAPS_DISPLAY_MAP_DESCRIPTION_DESC">
+			<option value="0">PLG_CONTENT_PHOCAMAPS_NO</option>
+			<option value="1">PLG_CONTENT_PHOCAMAPS_YES</option>
+		</field>
+		
+		<field name="detail_window" type="list" default="0" label="PLG_CONTENT_PHOCAMAPS_DETAIL_WINDOW_LABEL" description="PLG_CONTENT_PHOCAMAPS_DETAIL_WINDOW_DESC">
+			<option value="1">PLG_CONTENT_PHOCAMAPS_STANDARD_POPUP_WINDOW</option>
+			<option value="0">PLG_CONTENT_PHOCAMAPS_MODAL_BOX</option>
+		</field>
+		
+		<field name="modal_box_overlay_color" default="#000000" size="10" type="color" label="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_COLOR_LABEL" description="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_COLOR_DESC" />
+		
+		<field name="modal_box_overlay_opacity" default="0.3" size="10" type="list" label="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_OPACITY_LABEL" description="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_OPACITY_DESC" >
+		<option value="0">0 %</option>
+		<option value="0.1">10 %</option>
+		<option value="0.2">20 %</option>
+		<option value="0.3">30 %</option>
+		<option value="0.4">40 %</option>
+		<option value="0.5">50 %</option>
+		<option value="0.6">60 %</option>
+		<option value="0.7">70 %</option>
+		<option value="0.8">80 %</option>
+		<option value="0.9">90 %</option>
+		<option value="1">100 %</option>
+		
+		</field>
+		<field name="modal_box_border_color" default="#6b6b6b" size="10" type="color" label="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_BORDER_COLOR_LABEL" description="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_BORDER_COLOR_DESC" />
+		<field name="modal_box_border_width" default="2" size="10" type="phocatext" label="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_BORDER_WIDTH_LABEL" description="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_BORDER_WIDTH_DESC" />
+
+		</fieldset>
+	</fields>
+	</config>
+
+</extension>
