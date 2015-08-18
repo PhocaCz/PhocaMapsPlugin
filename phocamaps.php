@@ -49,8 +49,8 @@ class plgContentPhocaMaps extends JPlugin
 				return true;
 			}
 		
-			$document		= &JFactory::getDocument();
-			$db 			= &JFactory::getDBO();
+			$document		= JFactory::getDocument();
+			$db 			= JFactory::getDBO();
 			//$menu 			= &JSite::getMenu();			
 			//$plugin 		= &JPluginHelper::getPlugin('content', 'phocamaps');
 			//$paramsP 		= new JParameter( $plugin->params );
