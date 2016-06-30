@@ -375,6 +375,7 @@ if ((!isset($mapp->longitude))
 		$output .= $map->setMapOption('scaleControl', $mapp->scalecontrol, TRUE ).','."\n";
 		$output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
 		$output .= $map->setMapOption('disableDoubleClickZoom', $mapp->disabledoubleclickzoom).','."\n";
+		$output .= $map->setMapOption('styles', $mapp->mapstyles).','."\n";
 	//	$output .= $map->setMapOption('googleBar', $mapp->googlebar).','."\n";// Not ready yet
 	//	$output .= $map->setMapOption('continuousZoom', $mapp->continuouszoom).','."\n";// Not ready yet
 		$output .= $map->setMapTypeOpt($mapp->typeid)."\n";
