@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension group="content" method="upgrade" type="plugin" version="3">
 	<name>Phoca Maps Plugin</name>
-	<creationDate>30/07/2014</creationDate>
+	<creationDate>10/07/2016</creationDate>
 	<author>Jan Pavelka (www.phoca.cz)</author>
 	<authorEmail></authorEmail>
 	<authorUrl>www.phoca.cz</authorUrl>
 	<copyright>Jan Pavelka</copyright>
 	<license>GNU/GPL</license>
-	<version>3.0.2</version>
+	<version>3.0.4</version>
 
 	<description>PLG_CONTENT_PHOCAMAPS_DESCRIPTION</description>
 
@@ -23,10 +23,12 @@
 
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.sys.ini</language>
 	</languages>
 	<administration>
 		<languages>
 			<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.ini</language>
+			<language tag="en-GB">language/en-GB/en-GB.plg_content_phocamaps.sys.ini</language>
 		</languages>
 	</administration>
 	

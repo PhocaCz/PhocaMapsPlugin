@@ -29,6 +29,11 @@ class plgContentPhocaMaps extends JPlugin
 
 	public function onContentPrepare($context, &$article, &$params, $page = 0) {
 
+		// Don't run this plugin when the content is being indexed
+		if ($context == 'com_finder.indexer')
+		{
+		 return true;
+		}
 		
 		// Start Plugin
 		$regex_one		= '/({phocamaps\s*)(.*?)(})/si';
@@ -72,14 +77,19 @@ class plgContentPhocaMaps extends JPlugin
 			
 			$tmpl['enable_kml']				= $paramsC->get( 'enable_kml', 0 );
 			$tmpl['display_print_route']	= $paramsC->get( 'display_print_route', 1 );
+			$tmpl['close_opened_window']	= $paramsC->get( 'close_opened_window', 0 );
 			
 			$document->addStyleSheet(JURI::base(true).'/media/com_phocamaps/css/phocamaps.css');
 			$document->addStyleSheet(JURI::base(true).'/media/plg_content_phocamaps/css/default.css');
 			
+			$allIds = array();
+			
 			for($i = 0; $i < $count_matches; $i++) {
 				
 				$this->_setPhocaMapsPluginNumber();
-				$id	= 'PlgPM'.(int)$this->_plgPhocaMapsNr;
+				// Only loaded when the type is really map not a link - see below view=map YES, view=link NO
+				//$id	= 'PlgPM'.(int)$this->_plgPhocaMapsNr;
+				//$allIds[] = $id;
 				
 				$view	= '';
 				$idMap	= '';
@@ -110,12 +120,16 @@ class plgContentPhocaMaps extends JPlugin
 				}
 				
 				$output = '';
+				
 				switch($view) {
 					
 					// - - - - - - - - - - - - - - - -
 					// Map
 					// - - - - - - - - - - - - - - - -
 					case 'map':	
+					
+						$id	= 'PlgPM' . (int)$this->_plgPhocaMapsNr;
+						$allIds[] = $id;
 
 						$query = 'SELECT a.*'
 							.' FROM #__phocamaps_map AS a'
@@ -169,11 +183,13 @@ if (!isset($mapp->zoom) || (isset($mapp->zoom) && (int)$mapp->zoom < 1)) {
 // Map Langugage
 $tmpl['params'] = '';
 if (!isset($mapp->lang) || (isset($mapp->lang) && $mapp->lang == '')) {
-	$tmpl['params'] 		= '{other_params:"sensor=false"}';
+	//$tmpl['params'] 		= '{other_params:"sensor=false"}';
+	$tmpl['params'] 		= '';
 	$tmpl['paramssearch'] 	= '';
 	$tmpl['lang']			= '';
 } else {
-	$tmpl['params'] 		= '{other_params:"sensor=false&language='.$mapp->lang.'"}';
+	//$tmpl['params'] 		= '{other_params:"sensor=false&language='.$mapp->lang.'"}';
+	$tmpl['params'] 		= '{other_params:"language='.$mapp->lang.'"}';
 	$tmpl['paramssearch'] 	= '{"language":"'.$mapp->lang.'"}';
 	$tmpl['lang']			= $mapp->lang;
 }
@@ -279,7 +295,8 @@ if ((!isset($mapp->longitude))
 	//$id		= '';
 	$map	= new PhocaMapsMap($id);
 	//$map->loadAPI();
-	$map->loadAPI('jsapi',$paramsC->get( 'load_api_ssl',0));
+	//$map->loadAPI('jsapi',$paramsC->get( 'load_api_ssl',0));
+	//$map->loadAPI($article->id);//must be loaded at the end
 	$map->loadGeoXMLJS();
 	$map->loadBase64JS();
 	
@@ -377,8 +394,12 @@ if ((!isset($mapp->longitude))
 		$output .= $map->setMapOption('disableDoubleClickZoom', $mapp->disabledoubleclickzoom).','."\n";
 	//	$output .= $map->setMapOption('googleBar', $mapp->googlebar).','."\n";// Not ready yet
 	//	$output .= $map->setMapOption('continuousZoom', $mapp->continuouszoom).','."\n";// Not ready yet
+		$output .= $map->setMapOption('styles', $mapp->map_styles).','."\n";
 		$output .= $map->setMapTypeOpt($mapp->typeid)."\n";
-		$output .= $map->endMapOptions();
+		$output .= $map->endMapOptions($mapp->custom_options);
+		if ($tmpl['close_opened_window'] == 1) {
+			$output .= $map->setCloseOpenedWindow();
+		}
 		$output .= $map->setMap();
 		
 		// Markers
@@ -429,7 +450,7 @@ if ((!isset($mapp->longitude))
 					$iconOutput = $map->setMarkerIcon($markerV->icon, $markerV->iconext, $markerV->iurl, $markerV->iobject, $markerV->iurls, $markerV->iobjects, $markerV->iobjectshape);
 					$output .= $map->outputMarkerJs($iconOutput['js'], $markerV->icon, $markerV->iconext);
 					
-					$output .= $map->setMarker($markerV->id,$markerV->title,$markerV->description,$markerV->latitude, $markerV->longitude, $iconOutput['icon'], $iconOutput['iconid'], $text, $markerV->contentwidth, $markerV->contentheight,  $markerV->markerwindow,  $iconOutput['iconshadow'], $iconOutput['iconshape']);
+					$output .= $map->setMarker($markerV->id,$markerV->title,$markerV->description,$markerV->latitude, $markerV->longitude, $iconOutput['icon'], $iconOutput['iconid'], $text, $markerV->contentwidth, $markerV->contentheight,  $markerV->markerwindow,  $iconOutput['iconshadow'], $iconOutput['iconshape'], $tmpl['close_opened_window']);
 					
 				}
 			}
@@ -442,14 +463,20 @@ if ((!isset($mapp->longitude))
 		if ($tmpl['displaydir']) {
 			$output .= $map->setDirectionDisplayService('phocaDir');
 		}
-		$output .= $map->setListener();
+		if(isset($mapp->scrollwheelzoom) && $mapp->scrollwheelzoom != 0){
+			$output .= $map->setListener();
+		}
 		$output .= $map->endMapFunction();
 
 		if ($tmpl['displaydir']) {
 			$output .= $map->setDirectionFunction($tmpl['display_print_route'], $mapp->id, $mapp->alias, $tmpl['lang']);
 		}
 		
-		$output .= $map->setInitializeFunction();
+		//if ((int)$this->_plgPhocaMapsNr < 2) {
+			
+			//$output .= $map->setInitializeFunction();// will be set at bottom for all items - Add init for all maps
+			$output .= $map->setInitializeFunctionSpecificMap();
+		//}
 	$output .= $map->endJScData();
 }
 
@@ -558,6 +585,33 @@ $output .= '</div>';
 					
 				}
 				$article->text = preg_replace($regex_all, $output, $article->text, 1);
+			} // end foreach
+			
+			// Add init for all maps
+			if (!empty($allIds)) {
+				$jsI = '<script type="text/javascript">//<![CDATA['."\n";
+				// Article view = All OK
+				// Blog view = we get warning from google maps api that the api is loaded twice or more times but the map will be displayed
+				// so we can load all maps with warning or no map
+				
+				//$jsI .= 'function initMaps() {'."\n"; // NO WARNING BUT MAPS IN BLOG WILL BE LOADED ONLY IN ONE ARTICLE
+				$jsI .= 'function initMaps'.$article->id.'() {'."\n";// WARNING BUT MAPS WILL BE LOADED IN ALL ARTICLES IN BLOG VIEW
+				
+				foreach($allIds as $k => $v){
+					$jsI .= '   '.'initMap'.$v.'();'."\n";
+				}
+				$jsI .= '}'."\n";
+				$jsI .= '//]]></script>'."\n";
+				
+				if (isset($article->id)) {
+					// We need to load google maps javascript for whole article - even there are more plugin instances
+					// this javascript must be loaded as last
+					// we run only loadAPI function which does not set any other variables for other functions
+					$mapA	= new PhocaMapsMap();
+					$jsI	.= $mapA->loadAPI($article->id);
+				}
+				
+				$article->text = $article->text . $jsI;
 			}
 		}// end if count_matches
 		return true;
