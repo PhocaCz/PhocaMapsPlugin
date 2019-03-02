@@ -1,0 +1,21 @@
+{
+	"author": "Jan Pavelka (www.phoca.cz)",
+	"authorUrl": "https://www.phoca.cz",
+	"copyright": "Jan Pavelka",
+	"license": "GNU/GPL",
+	"projectName": "PhocaMapsPlugin",
+	"extensionName": "Phoca Maps Content Plugin",
+	"projectInitials" : "PM",				  
+	"description": "Phoca Maps Plugin is a Joomla! plugin. With Phoca Maps Plugin you can display one or more maps on your site (in the article). You can display the map or only link to selected map. When user click on this link, the map will be displayed in Modal Box window or in standard Popup window.",
+	"projectUrl": "https://www.phoca.cz/phocamaps-plugin",
+	"projectDocumentationUrl": "https://www.phoca.cz/documentation/category/54-phoca-maps-plugin",
+	"projectMainComponent": "Phoca Maps",
+	"projectMainComponentInfoUrl": "https://www.phoca.cz/project/phocamaps-joomla-maps",
+	"projectDemo" : {
+		"Joomla! 3 Demo": "https://www.phoca.cz/joomla3demo/phoca-maps-demo",
+		"Joomla! 2.5 Demo": "https://www.phoca.cz/joomlademo/phoca-maps",
+		"Joomla! 1.5 Demo": "https://www.phoca.cz/demo/phoca-maps-demo-component"
+
+	},
+	"projectColor": "#669966"
+}
