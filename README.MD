@@ -2,7 +2,7 @@
 
 
 
-![Phoca Maps Content Plugin](https://github.com/PhocaCz/PhocaMapsPlugin/blob/master/phocamaps.png)
+![Phoca Maps Content Plugin](https://github.com/PhocaCz/PhocaMapsPlugin/blob/master/phocamaps.png?raw=true)
 
 # Phoca Maps Content Plugin
 
@@ -23,6 +23,8 @@ Phoca Maps Plugin is a Joomla! plugin. With Phoca Maps Plugin you can display on
 ## Documentation
 
 [Documentation](https://www.phoca.cz/documentation/category/54-phoca-maps-plugin)
+
+
 
 
 
@@ -56,7 +58,7 @@ Phoca Maps Plugin is a Joomla! plugin. With Phoca Maps Plugin you can display on
 
 ## Version
 
-3.0.6
+3.0.9
 
 
 

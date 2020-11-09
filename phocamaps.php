@@ -715,7 +715,6 @@ $output .= '</div>';
 								}
 							}
 
-
 							if ($tmpl['detailwindow'] == 1) {
 
 								$button = new JObject();
@@ -741,6 +740,52 @@ $output .= '</div>';
 								$button->set('options', "{handler: 'iframe', size: {x: ".$tmpl['windowwidth'].", y: ".$tmpl['windowheight']."}, overlayOpacity: ".$tmpl['mboverlayopacity'].", classWindow: 'phocamaps-plugin-window', classOverlay: 'phocamaps-plugin-overlay'}");
 
 								$output .= '<a class="modal-button" title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" rel="'. $button->options.'">'.$text.'</a>';
+							} else if ($tmpl['detailwindow'] == 2) {
+								
+								// Bootstrap Modal
+								$item 		= 'phPlgMapsModalDetail' . $this->_plgPhocaMapsNr;
+								Joomla\CMS\HTML\HTMLHelper::_('jquery.framework', false);
+								$s = '
+								jQuery(document).ready(function(){
+									
+									jQuery("body").on("click", ".ph-modal-button-plg-ph-maps", function () {
+										
+										
+										var $target	= jQuery(this).data("target");
+										var $href 	= jQuery(this).data("href");
+										var $body	= $target + "Body";
+										var $dialog	= $target + "Dialog";
+										
+										var $height	= jQuery(this).data("height");
+										var $width	= jQuery(this).data("width");
+
+										jQuery($body).css("height", $height);
+										jQuery($body).css("width", $width);
+										jQuery($body).css("overflow-y", "auto");
+										jQuery($body).load($href, function (response, status, xhr) {});
+									});
+									
+									
+								});';
+								$document->addScriptDeclaration($s);
+								
+								$output .= '<a class="ph-modal-button-plg-ph-maps" title="'.$text.'"  href="#'.$item.'" data-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.JRoute::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-target="#'.$item.'">'.$text.'</a>';
+								
+								$output .= '
+								<div id="'.$item.'" class="modal" tabindex="-1" role="dialog" aria-labelledby="'.$item.'Label">
+								 <div class="modal-dialog modal-dialog-centered" role="document" id="'.$item.'Dialog">
+								  <div class="modal-content">
+								   <div class="modal-header">
+								    <h4 class="modal-title" id="'.$item.'Label">'.$mapp->title.'</h4>
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+								   </div>
+								   <div class="modal-body" id="'.$item.'Body" ></div>
+								   <div class="modal-footer">
+								    <button type="button" class="btn btn-danger" data-dismiss="modal">'.JText::_('COM_PHOCAMAPS_CLOSE').'</button>
+								   </div>
+								  </div>
+								 </div>
+								</div>';
 							}
 
 						}

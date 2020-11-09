@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="plugin" group="content" method="upgrade" version="3">
+<extension type="plugin" group="content" method="upgrade" version="3.9">
 	<name>plg_content_phocamaps</name>
 	<author>Jan Pavelka (www.phoca.cz)</author>
-	<creationDate>02/03/2019</creationDate>
+	<creationDate>09/11/2020</creationDate>
 	<authorEmail></authorEmail>
 	<authorUrl>https://www.phoca.cz</authorUrl>
 	<copyright>Jan Pavelka</copyright>
 	<license>GNU/GPL</license>
-	<version>3.0.6</version>
+	<version>3.0.9</version>
 	<description>PLG_CONTENT_PHOCAMAPS_DESCRIPTION</description>
 	<projectName>PhocaMapsPlugin</projectName>
 
@@ -48,6 +48,7 @@
 		<field name="detail_window" type="list" default="1" label="PLG_CONTENT_PHOCAMAPS_DETAIL_WINDOW_LABEL" description="PLG_CONTENT_PHOCAMAPS_DETAIL_WINDOW_DESC">
 			<option value="1">PLG_CONTENT_PHOCAMAPS_STANDARD_POPUP_WINDOW</option>
 			<option value="0">PLG_CONTENT_PHOCAMAPS_MODAL_BOX</option>
+			<option value="2">PLG_CONTENT_PHOCAMAPS_BOOTSTRAP_MODAL_BOX</option>
 		</field>
 		
 		<field name="modal_box_overlay_color" default="#000000" size="10" type="color" label="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_COLOR_LABEL" description="PLG_CONTENT_PHOCAMAPS_MODAL_BOX_OVERLAY_COLOR_DESC"/>
