@@ -499,6 +499,7 @@ if ((!isset($mapp->longitude))
 
 					}
 				}
+				$output .= $map->setMarkerClusterer();
 			}
 
 			if ($tmpl['load_kml']) {
@@ -606,6 +607,7 @@ if ((!isset($mapp->longitude))
 					$iM++;
 				}
 			}
+			$map->setMarkerClusterer();
 		}
 
 		$map->renderFullScreenControl();
@@ -741,7 +743,7 @@ $output .= '</div>';
 
 								$output .= '<a class="modal-button" title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" rel="'. $button->options.'">'.$text.'</a>';
 							} else if ($tmpl['detailwindow'] == 2) {
-								
+
 								// Bootstrap Modal
 								$item 		= 'phPlgMapsModalDetail' . $this->_plgPhocaMapsNr;
 								Joomla\CMS\HTML\HTMLHelper::_('jquery.framework', false);
@@ -768,9 +770,9 @@ $output .= '</div>';
 									
 								});';
 								$document->addScriptDeclaration($s);
-								
+
 								$output .= '<a class="ph-modal-button-plg-ph-maps" title="'.$text.'"  href="#'.$item.'" data-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.JRoute::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-target="#'.$item.'">'.$text.'</a>';
-								
+
 								$output .= '
 								<div id="'.$item.'" class="modal" tabindex="-1" role="dialog" aria-labelledby="'.$item.'Label">
 								 <div class="modal-dialog modal-dialog-centered" role="document" id="'.$item.'Dialog">

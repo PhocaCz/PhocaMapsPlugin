@@ -58,7 +58,7 @@ Phoca Maps Plugin is a Joomla! plugin. With Phoca Maps Plugin you can display on
 
 ## Version
 
-3.0.9
+3.0.10
 
 
 
