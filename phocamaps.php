@@ -159,6 +159,7 @@ class plgContentPhocaMaps extends JPlugin
 						$db->setQuery($query);
 						$mapp = $db->loadObject();
 
+
 						if (empty($mapp)) {
 							echo '<div class="alert alert-error">'. JText::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. JText::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
 							return false;
@@ -428,7 +429,14 @@ if ((!isset($mapp->longitude))
 			$output .= $map->setTypeControlOpt($mapp->typecontrol, $mapp->typecontrolposition).','."\n";
 			$output .= $map->setNavigationControlOpt($mapp->zoomcontrol).','."\n";
 			$output .= $map->setMapOption('scaleControl', $mapp->scalecontrol, TRUE ).','."\n";
-			$output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
+			//$output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
+
+			if ($mapp->gesturehandling != '') {
+			   $output .= $map->setMapOption('gestureHandling', '"' . $mapp->gesturehandling . '"').','."\n";
+			} else {
+			   $output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
+			}
+
 			$output .= $map->setMapOption('disableDoubleClickZoom', $mapp->disabledoubleclickzoom).','."\n";
 		//	$output .= $map->setMapOption('googleBar', $mapp->googlebar).','."\n";// Not ready yet
 		//	$output .= $map->setMapOption('continuousZoom', $mapp->continuouszoom).','."\n";// Not ready yet
@@ -534,6 +542,45 @@ if ((!isset($mapp->longitude))
 
 	} else {
 
+		//OSM tracks
+		if ($tmpl['map_type'] == 2) {
+
+		    $tmpl['fitbounds']   	= $mapp->fitbounds_osm;
+			$textarea               = $mapp->trackfiles_osm;
+			$textarea               = str_replace(array("\r\n", "\n", "\r"),'',$textarea);
+			$tracks                 = explode(",",$textarea);
+
+			$textarea               = $mapp->trackcolors_osm;
+			$textarea               = str_replace(array("\r\n", "\n", "\r"),'',$textarea);
+			//$colors                 = explode(",",$textarea);
+			$colors                 = array_map('trim', explode(',', $textarea));
+
+			$tracksA = array();
+			foreach ($tracks as $k => $v) {
+				$v = trim($v);
+				$ext = pathinfo($v,PATHINFO_EXTENSION);
+
+				if (($ext != 'gpx') && ($ext != 'kml')) {
+					$v = '';
+				} else {
+					//if no path specified add default path (hardcoded to /phocamapskml for now)
+					if (strpos($v,'/') === false) {
+						$v = 'phocamapskml/'.$v;
+					}
+					$v = trim($v,'/');
+
+					$tracksA[$k] = array();
+					$tracksA[$k]['file'] = JFile::exists(JPATH_ROOT.'/'.$v) ? JURI::base().$v : '';
+					$tracksA[$k]['color'] = isset($colors[$k]) ? $colors[$k] : '';
+				}
+			}
+			$tmpl['tracks'] = $tracksA;
+		} else {
+			$tmpl['tracks'] = array();
+		}
+
+
+
 		$map	= new PhocaMapsMapOsm($id);
 
 
@@ -636,6 +683,17 @@ if ((!isset($mapp->longitude))
 		if ($tmpl['osm_easyprint'] == 1) {
 			$map->renderEasyPrint();
 		}
+
+		if (!empty($tmpl['tracks'])) {
+			foreach ($tmpl['tracks'] as $ky=>$trk) {
+				$fitbounds = $ky==0 ? $tmpl['fitbounds'] : false;
+				if (isset($trk['file'])) {
+					$map->renderTrack($trk['file'], $trk['color'], $fitbounds);
+				}
+			}
+		}
+
+
 		$map->renderMap();
 
 		########################### END OPENSTREETMAP
