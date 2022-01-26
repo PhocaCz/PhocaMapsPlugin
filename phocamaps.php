@@ -8,6 +8,14 @@
  * @copyright Copyright (C) Jan Pavelka www.phoca.cz
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
+
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\Object\CMSObject;
+
 defined( '_JEXEC' ) or die( 'Restricted access' );
 if(!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
 jimport( 'joomla.plugin.plugin' );
@@ -16,6 +24,7 @@ jimport( 'joomla.application.component.helper' );
 class plgContentPhocaMaps extends JPlugin
 {
 	protected $_plgPhocaMapsNr	= 0;
+	protected $_loadedBootstrap = 0;
 
 
 	public function __construct(& $subject, $config) {
@@ -27,6 +36,10 @@ class plgContentPhocaMaps extends JPlugin
 		$this->_plgPhocaMapsNr = (int)$this->_plgPhocaMapsNr + 1;
 	}
 
+	public function _setPhocaMapsPluginLoadedBootstrap() {
+		$this->_loadedBootstrap = (int)$this->_loadedBootstrap + 1;
+	}
+
 	public function onContentPrepare($context, &$article, &$params, $page = 0) {
 
 		// Don't run this plugin when the content is being indexed
@@ -34,10 +47,13 @@ class plgContentPhocaMaps extends JPlugin
 			return true;
 		}
 
-		$app 	= JFactory::getApplication();
+		$app 	= Factory::getApplication();
 		$view	= $app->input->get('view');
 
 		if ($view == 'tag') { return; }
+
+		$param['display_map_description'] = $this->params->get('display_map_description', 0);
+
 
 		// Start Plugin
 		$regex_one		= '/({phocamaps\s*)(.*?)(})/si';
@@ -45,7 +61,7 @@ class plgContentPhocaMaps extends JPlugin
 		$matches 		= array();
 		$count_matches	= preg_match_all($regex_all,$article->text,$matches,PREG_OFFSET_CAPTURE | PREG_PATTERN_ORDER);
 
-		$lang = JFactory::getLanguage();
+		$lang = Factory::getLanguage();
 		$lang->load('com_phocamaps.sys');
 		$lang->load('com_phocamaps');
 
@@ -53,13 +69,13 @@ class plgContentPhocaMaps extends JPlugin
 
 		if ($count_matches != 0) {
 
-			if (!JComponentHelper::isEnabled('com_phocamaps', true)) {
-				JText::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_REQUIRE_COMPONENT');
+			if (!ComponentHelper::isEnabled('com_phocamaps', true)) {
+				Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_REQUIRE_COMPONENT');
 				return true;
 			}
 
-			$document		= JFactory::getDocument();
-			$db 			= JFactory::getDBO();
+			$document		= Factory::getDocument();
+			$db 			= Factory::getDBO();
 			//$menu 			= &JSite::getMenu();
 			//$plugin 		= &JPluginHelper::getPlugin('content', 'phocamaps');
 			//$paramsP 		= new JParameter( $plugin->params );
@@ -80,7 +96,7 @@ class plgContentPhocaMaps extends JPlugin
 
 			$tmpl			= array();
 
-
+			JHtml::_('jquery.framework', false);
 
 			$document->addStyleSheet(JURI::base(true).'/media/com_phocamaps/css/phocamaps.css');
 			$document->addStyleSheet(JURI::base(true).'/media/plg_content_phocamaps/css/default.css');
@@ -161,7 +177,7 @@ class plgContentPhocaMaps extends JPlugin
 
 
 						if (empty($mapp)) {
-							echo '<div class="alert alert-error">'. JText::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. JText::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
+							echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
 							return false;
 						}
 
@@ -185,24 +201,27 @@ class plgContentPhocaMaps extends JPlugin
 // - - - - - - - - - - - - - - -
 // Display Description
 $tmpl['description'] = '';
-if (isset($mapp->description) && $mapp->description != '') {
+
+if (isset($mapp->description) && $mapp->description != '' && $param['display_map_description'] == 1) {
 	$tmpl['description'] = '<div class="pm-desc">'.$mapp->description.'</div>';
 }
 
 // Check Width and Height
 $tmpl['fullwidth'] = 0;
 if (!isset($mapp->width)) {
-	$mapp->width = 400;
+	$mapp->width = '100%';
 }
 if (isset($mapp->width) && (int)$mapp->width < 1) {
 	$tmpl['fullwidth'] = 1;
 }
 if (!isset($mapp->height) || (isset($mapp->height) && (int)$mapp->height < 1)) {
-	$mapp->height = 400;
+	$mapp->height = '50vh';
 }
 if (!isset($mapp->zoom) || (isset($mapp->zoom) && (int)$mapp->zoom < 1)) {
 	$mapp->zoom = 2;
 }
+
+
 
 // Map Langugage
 $tmpl['params'] = '';
@@ -301,7 +320,7 @@ if($tmpl['enable_kml'] == 1) {
 	jimport( 'joomla.filesystem.folder' );
 	jimport( 'joomla.filesystem.file' );
 	$path = PhocaMapsPath::getPath();
-	if (isset($mapp->kmlfile) && JFile::exists($path->kml_abs . $mapp->kmlfile)) {
+	if (isset($mapp->kmlfile) && File::exists($path->kml_abs . $mapp->kmlfile)) {
 		$tmpl['load_kml'] = $path->kml_rel_full . $mapp->kmlfile;
 	}
 }
@@ -312,7 +331,7 @@ if ((!isset($mapp->longitude))
 		|| (!isset($mapp->latitude))
 		|| (isset($mapp->longitude) && $mapp->longitude == '')
 		|| (isset($mapp->latitude) && $mapp->latitude == '')) {
-	$output .= '<p>' . JText::_('COM_PHOCAMAPS_MAP_ERROR_FRONT') . '</p>';
+	$output .= '<p>' . Text::_('COM_PHOCAMAPS_MAP_ERROR_FRONT') . '</p>';
 } else {
 
 
@@ -326,17 +345,17 @@ if ((!isset($mapp->longitude))
 	if ($tmpl['border'] == '') {
 		$output .= '<div class="phocamaps-box" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'px"></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'"></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.'px;height:'.$mapp->height.'px"></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.';height:'.$mapp->height.'"></div>';
 		}
 		$output .= '</div>';
 	} else {
 		$output .= '<div class="phocamaps-box phocamaps-box-border'.$tmpl['border'].'" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'px"></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'"></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.'px;height:'.$mapp->height.'px"></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.';height:'.$mapp->height.'"></div>';
 		}
 		$output .= '</div>';
 		//echo '</div></div></div></div></div>';
@@ -365,7 +384,7 @@ if ((!isset($mapp->longitude))
 			$form 			= '';
 			if ((int)$countMarker > 1) {
 
-				$form .= ' ' . JText::_('PLG_CONTENT_PHOCAMAPS_TO').': <select name="pmto'.$id.'" id="toPMAddress'.$id.'">';
+				$form .= ' ' . Text::_('PLG_CONTENT_PHOCAMAPS_TO').': <select name="pmto'.$id.'" id="toPMAddress'.$id.'">';
 				foreach ($markerp as $key => $markerV) {
 					if ((isset($markerV->longitude) && $markerV->longitude != '')
 					&& (isset($markerV->latitude) && $markerV->latitude != '')) {
@@ -386,9 +405,9 @@ if ((!isset($mapp->longitude))
 
 			if ($form != '') {
 				/*$output .= '<div class="pmroute"><form action="#" onsubmit="setPhocaDir'.$id.'(this.pmfrom'.$id.'.value, this.pmto'.$id.'.value); return false;">';
-				$output .= JText::_('PLG_CONTENT_PHOCAMAPS_FROM_ADDRESS').': <input type="text" size="30" id="fromPMAddress'.$id.'" name="pmfrom'.$id.'" value=""/>';
+				$output .= Text::_('PLG_CONTENT_PHOCAMAPS_FROM_ADDRESS').': <input type="text" size="30" id="fromPMAddress'.$id.'" name="pmfrom'.$id.'" value=""/>';
 				$output .= $form;
-				$output .= ' <input name="pmsubmit'.$id.'" type="submit" value="'.JText::_('PLG_CONTENT_PHOCAMAPS_GET_ROUTE').'" /></form></div>';
+				$output .= ' <input name="pmsubmit'.$id.'" type="submit" value="'.Text::_('PLG_CONTENT_PHOCAMAPS_GET_ROUTE').'" /></form></div>';
 				$output .= '<div id="phocaDir'.$id.'">';
 				if ($tmpl['display_print_route'] == 1) {
 					$output .= '<div id="phocaMapsPrintIcon'.$id.'" style="display:none"></div>';
@@ -396,10 +415,10 @@ if ((!isset($mapp->longitude))
 				$output .= '</div>';*/
 
 				$output .= '<div class="pmroute">';
-				$output .= '<form class="form-inline" action="#" onsubmit="setPhocaDir'.$id.'(this.pmfrom'.$id.'.value, this.pmto'.$id.'.value); return false;">';
-				$output .= JText::_('PLG_CONTENT_PHOCAMAPS_FROM_ADDRESS').': <input class="pm-input-route input" type="text" size="30" id="fromPMAddress'.$id.'" name="pmfrom'.$id.'" value=""/>';
+				$output .= '<form class="form-inline input-group" action="#" onsubmit="setPhocaDir'.$id.'(this.pmfrom'.$id.'.value, this.pmto'.$id.'.value); return false;">';
+				$output .= Text::_('PLG_CONTENT_PHOCAMAPS_FROM_ADDRESS').': <input class="pm-input-route input form-control" type="text" size="30" id="fromPMAddress'.$id.'" name="pmfrom'.$id.'" value=""/>';
 				$output .= $form;
-				$output .= ' <input name="pmsubmit'.$id.'" type="submit" class="pm-input-route-btn btn" value="'.JText::_('PLG_CONTENT_PHOCAMAPS_GET_ROUTE').'" />';
+				$output .= ' <input name="pmsubmit'.$id.'" type="submit" class="pm-input-route-btn btn btn-primary" value="'.Text::_('PLG_CONTENT_PHOCAMAPS_GET_ROUTE').'" />';
 				$output .= '</form></div>';
 				$output .= '<div id="phocaDir'.$id.'">';
 				if ($tmpl['display_print_route'] == 1) {
@@ -481,7 +500,7 @@ if ((!isset($mapp->longitude))
 
 
 						if ($markerV->displaygps == 1) {
-							$text .= '<div class="pmgps"><table border="0"><tr><td><strong>'. JText::_('PLG_CONTENT_PHOCAMAPS_GPS') . ': </strong></td>'
+							$text .= '<div class="pmgps"><table border="0"><tr><td><strong>'. Text::_('PLG_CONTENT_PHOCAMAPS_GPS') . ': </strong></td>'
 									.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslatitude)).'</td></tr>'
 									.'<tr><td></td>'
 									.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslongitude)).'</td></tr></table></div>';
@@ -570,7 +589,7 @@ if ((!isset($mapp->longitude))
 					$v = trim($v,'/');
 
 					$tracksA[$k] = array();
-					$tracksA[$k]['file'] = JFile::exists(JPATH_ROOT.'/'.$v) ? JURI::base().$v : '';
+					$tracksA[$k]['file'] = File::exists(JPATH_ROOT.'/'.$v) ? JURI::base().$v : '';
 					$tracksA[$k]['color'] = isset($colors[$k]) ? $colors[$k] : '';
 				}
 			}
@@ -616,7 +635,7 @@ if ((!isset($mapp->longitude))
 					$markerV->description = str_replace('@', '&#64;', $markerV->description);
 					$text .= '<div>'. PhocaMapsHelper::strTrimAll(addslashes($markerV->description)).'</div>';
 					if ($markerV->displaygps == 1) {
-						$text .= '<div class="pmgps"><table border="0"><tr><td><strong>'. JText::_('COM_PHOCAMAPS_GPS') . ': </strong></td>'
+						$text .= '<div class="pmgps"><table border="0"><tr><td><strong>'. Text::_('COM_PHOCAMAPS_GPS') . ': </strong></td>'
 								.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslatitude)).'</td></tr>'
 								.'<tr><td></td>'
 								.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslongitude)).'</td></tr></table></div>';
@@ -728,7 +747,7 @@ $output .= '</div>';
 							if (empty($mapp)) {
 
 
-								echo '<div class="alert alert-error">'. JText::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. JText::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
+								echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
 								return false;
 							}
 
@@ -742,9 +761,8 @@ $output .= '</div>';
 
 
 							$linkMap 		= PhocaMapsHelperRoute::getMapRoute( $mapp->id, $mapp->alias);
-
 							if ($text =='') {
-								$text = JText::_('PLG_CONTENT_PHOCAMAPS_LINK_TO_MAP');
+								$text = Text::_('PLG_CONTENT_PHOCAMAPS_LINK_TO_MAP');
 							}
 
 							// Parameters
@@ -777,7 +795,7 @@ $output .= '</div>';
 
 							if ($tmpl['detailwindow'] == 1) {
 
-								$button = new JObject();
+								$button = new CMSObject();
 								$button->set('name', 'phocamaps');
 								$button->set('methodname', 'js-button');
 								$button->set('options', "window.open(this.href,'win2','width=".$tmpl['windowwidth'].",height=".$tmpl['windowheight'].",menubar=no,resizable=yes'); return false;");
@@ -793,7 +811,7 @@ $output .= '</div>';
 
 								$document->addCustomTag( "<style type=\"text/css\">\n" . $cssSbox . "\n" . " </style>\n");
 
-								$button = new JObject();
+								$button = new CMSObject();
 								$button->set('name', 'phocamaps');
 								$button->set('modal', true);
 								$button->set('methodname', 'modal-button');
@@ -804,48 +822,36 @@ $output .= '</div>';
 
 								// Bootstrap Modal
 								$item 		= 'phPlgMapsModalDetail' . $this->_plgPhocaMapsNr;
-								Joomla\CMS\HTML\HTMLHelper::_('jquery.framework', false);
-								$s = '
-								jQuery(document).ready(function(){
-									
-									jQuery("body").on("click", ".ph-modal-button-plg-ph-maps", function () {
-										
-										
-										var $target	= jQuery(this).data("target");
-										var $href 	= jQuery(this).data("href");
-										var $body	= $target + "Body";
-										var $dialog	= $target + "Dialog";
-										
-										var $height	= jQuery(this).data("height");
-										var $width	= jQuery(this).data("width");
 
-										jQuery($body).css("height", $height);
-										jQuery($body).css("width", $width);
-										jQuery($body).css("overflow-y", "auto");
-										jQuery($body).load($href, function (response, status, xhr) {});
-									});
-									
-									
-								});';
-								$document->addScriptDeclaration($s);
+								if($this->_loadedBootstrap == 0) {
+									HTMLHelper::_('script', 'media/plg_content_phocamaps/js/main.js', array('version' => 'auto'));
+									Factory::getApplication()
+										->getDocument()
+										->getWebAssetManager()
+										->useScript('bootstrap.modal');
 
-								$output .= '<a class="ph-modal-button-plg-ph-maps" title="'.$text.'"  href="#'.$item.'" data-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.JRoute::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-target="#'.$item.'">'.$text.'</a>';
+									$output .= '<div id="pmPlgModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="pmPlgModal">
+											  <div class="modal-dialog" role="document" id="' . $item . 'Dialog">
+												<div class="modal-content">
+												  <div class="modal-header">
+													
+													<h4 class="modal-title" id="pmPlgModalLabel">' . Text::_('COM_PHOCAMAPS_MAP') . '</h4>
+													<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . Text::_('COM_PHOCAMAPS_CLOSE') . '"></button>
+												  </div>
+												  <div class="modal-body"><iframe id="pmPlgModalIframe" height="100%" frameborder="0"></iframe></div>
+												  <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . Text::_('COM_PHOCAMAPS_CLOSE') . '</button></div>
+												</div>
+											  </div>
+											</div>';
 
-								$output .= '
-								<div id="'.$item.'" class="modal" tabindex="-1" role="dialog" aria-labelledby="'.$item.'Label">
-								 <div class="modal-dialog modal-dialog-centered" role="document" id="'.$item.'Dialog">
-								  <div class="modal-content">
-								   <div class="modal-header">
-								    <h4 class="modal-title" id="'.$item.'Label">'.$mapp->title.'</h4>
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-								   </div>
-								   <div class="modal-body" id="'.$item.'Body" ></div>
-								   <div class="modal-footer">
-								    <button type="button" class="btn btn-danger" data-dismiss="modal">'.JText::_('COM_PHOCAMAPS_CLOSE').'</button>
-								   </div>
-								  </div>
-								 </div>
-								</div>';
+
+									$this->_setPhocaMapsPluginLoadedBootstrap();
+
+								}
+
+								$output .= '<a class="pm-plg-bs-modal-button" title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" data-bs-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.JRoute::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-bs-target="#'.$item.'">'.$text.'</a>';
+
+
 							}
 
 						}
