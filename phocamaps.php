@@ -221,6 +221,14 @@ if (!isset($mapp->zoom) || (isset($mapp->zoom) && (int)$mapp->zoom < 1)) {
 	$mapp->zoom = 2;
 }
 
+if (is_numeric($mapp->width)) {
+	$mapp->width = $mapp->width . 'px';
+}
+
+if (is_numeric($mapp->height)) {
+	$mapp->height = $mapp->height . 'px';
+}
+
 
 
 // Map Langugage
@@ -448,12 +456,12 @@ if ((!isset($mapp->longitude))
 			$output .= $map->setTypeControlOpt($mapp->typecontrol, $mapp->typecontrolposition).','."\n";
 			$output .= $map->setNavigationControlOpt($mapp->zoomcontrol).','."\n";
 			$output .= $map->setMapOption('scaleControl', $mapp->scalecontrol, TRUE ).','."\n";
-			//$output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
+			//$output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom, TRUE).','."\n";
 
 			if ($mapp->gesturehandling != '') {
 			   $output .= $map->setMapOption('gestureHandling', '"' . $mapp->gesturehandling . '"').','."\n";
 			} else {
-			   $output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom).','."\n";
+			   $output .= $map->setMapOption('scrollwheel', $mapp->scrollwheelzoom, TRUE).','."\n";
 			}
 
 			$output .= $map->setMapOption('disableDoubleClickZoom', $mapp->disabledoubleclickzoom).','."\n";
