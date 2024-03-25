@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <updates>
 	<update>
 		<name><![CDATA[ Phoca Maps Content Plugin ]]></name>
@@ -36,7 +37,28 @@
 		<maintainer><![CDATA[ Phoca.cz ]]></maintainer>
 		<maintainerurl>https://www.phoca.cz/</maintainerurl>
 		<section>Updates</section>
-		<targetplatform name="joomla" version="4.[012]"/>
+		<targetplatform name="joomla" version="4\.*"/>
+		<client>site</client>
+	</update>
+	<update>
+		<name><![CDATA[ Phoca Maps Content Plugin ]]></name>
+		<description><![CDATA[ Phoca Maps Plugin is a Joomla! plugin. With Phoca Maps Plugin you can display one or more maps on your site (in the article). You can display the map or only link to selected map. When user click on this link, the map will be displayed in Modal Box window or in standard Popup window. ]]></description>
+		<element>phocamaps</element>
+		<folder>content</folder>
+		<type>plugin</type>
+		<version>5.0.0</version>
+		<infourl title="Phoca Maps Content Plugin 5.0.0">https://www.phoca.cz/</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">https://github.com/PhocaCz/PhocaMapsPlugin/releases/download/5.0.0/plg_content_phocamaps_v5.0.0.zip</downloadurl>
+		</downloads>
+		<sha512>236d505272ccb1c6ffb4a41bc4824b3bc69f1178c1ed2a9f148cc535ea8ce8510b9fdcec47d7659b65c9561a682d226a7cee12d0e4d98e2c907c97932b77ff3d</sha512>
+		<tags>
+			<tag>stable</tag>
+		</tags>
+		<maintainer><![CDATA[ Phoca.cz ]]></maintainer>
+		<maintainerurl>https://www.phoca.cz/</maintainerurl>
+		<section>Updates</section>
+		<targetplatform name="joomla" version="(4|5)\.*"/>
 		<client>site</client>
 	</update>
 </updates>

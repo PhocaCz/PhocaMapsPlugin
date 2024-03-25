@@ -15,16 +15,20 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Object\CMSObject;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
 if(!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
 jimport( 'joomla.plugin.plugin' );
 jimport( 'joomla.application.component.helper' );
 
-class plgContentPhocaMaps extends JPlugin
+class plgContentPhocaMaps extends CMSPlugin
 {
 	protected $_plgPhocaMapsNr	= 0;
-	protected $_loadedBootstrap = 0;
+	protected $_loadedBootstrap	= 0;
+	public $plg_name            = "phocamaps";
 
 
 	public function __construct(& $subject, $config) {
@@ -47,12 +51,18 @@ class plgContentPhocaMaps extends JPlugin
 			return true;
 		}
 
+
+		//$layout 			= new FileLayout('test', null, []);
+		//$layout->addIncludePaths([JPATH_SITE . '/plugins/content/phocamaps/layouts']);
+
+
 		$app 	= Factory::getApplication();
 		$view	= $app->input->get('view');
 
 		if ($view == 'tag') { return; }
 
 		$param['display_map_description'] = $this->params->get('display_map_description', 0);
+		$param['display_auto_location'] = $this->params->get('display_auto_location', 0);
 
 
 		// Start Plugin
@@ -92,14 +102,14 @@ class plgContentPhocaMaps extends JPlugin
 			//$paramsC	 	= new JParameter( $table->params );
 
 			$component			=	'com_phocamaps';
-			$paramsC			= JComponentHelper::getParams($component) ;
+			$paramsC			= ComponentHelper::getParams($component) ;
 
 			$tmpl			= array();
 
-			JHtml::_('jquery.framework', false);
+			HTMLHelper::_('jquery.framework', false);
 
-			$document->addStyleSheet(JURI::base(true).'/media/com_phocamaps/css/phocamaps.css');
-			$document->addStyleSheet(JURI::base(true).'/media/plg_content_phocamaps/css/default.css');
+			$document->addStyleSheet(URI::base(true).'/media/com_phocamaps/css/phocamaps.css');
+			$document->addStyleSheet(URI::base(true).'/media/plg_content_phocamaps/css/default.css');
 
 			$allIds = array();
 
@@ -494,8 +504,12 @@ if ((!isset($mapp->longitude))
 
 
 
-						$hStyle = 'font-size:120%;margin: 5px 0px;font-weight:bold;';
-						$text = '<div style="'.$hStyle.'">' . addslashes($markerV->title) . '</div>';
+						//$hStyle = 'font-size:120%;margin: 5px 0px;font-weight:bold;';
+						//$text = '<div style="'.$hStyle.'">' . addslashes($markerV->title) . '</div>';
+
+						// template
+						// $text = '<div class="pmMarkerTitle">' . addslashes($markerV->title) . '</div>';
+
 						// Try to correct images in description
 						$markerV->description = PhocaMapsHelper::fixImagePath($markerV->description);
 						$markerV->description = str_replace('@', '&#64;', $markerV->description);
@@ -504,6 +518,9 @@ if ((!isset($mapp->longitude))
 						//$markerV->description = str_replace('"', '&#34;', $markerV->description);
 
 						//$markerV->description = htmlentities($markerV->description);
+
+						// template
+						/*
 						$text .= '<div>'. PhocaMapsHelper::strTrimAll(addslashes($markerV->description)).'</div>';
 
 
@@ -512,9 +529,10 @@ if ((!isset($mapp->longitude))
 									.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslatitude)).'</td></tr>'
 									.'<tr><td></td>'
 									.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslongitude)).'</td></tr></table></div>';
-						}
+						}*/
 
-
+						// Get marker text from tmpl so it can be overriden by template override
+						$text = str_replace(array("\r", "\n", "\t"), '', $this->getTemplateOutput($markerV, "marker"));
 
 						if(empty($markerV->icon)) {
 							$markerV->icon = 0;
@@ -547,6 +565,15 @@ if ((!isset($mapp->longitude))
 			if(isset($mapp->scrollwheelzoom) && $mapp->scrollwheelzoom != 0){
 				$output .= $map->setListener();
 			}
+
+
+			if ((int)$mapp->autolocation == 1) {
+				$output .= $map->setAutolocation();
+			}
+
+			// Set own custom JS which can be overriden by template
+			$output .= $this->getTemplateOutput(["mapId"=>$this->_plgPhocaMapsNr], "custom_js");
+
 			$output .= $map->endMapFunction();
 
 			if ($tmpl['displaydir']) {
@@ -936,6 +963,16 @@ $output .= '</div>';
 			}
 		}// end if count_matches
 		return true;
+	}
+
+	public function getTemplateOutput($data, $tmpl = "default") {
+
+		ob_start();
+
+		$getTemplatePath = PluginHelper::getLayoutPath('content', $this->plg_name, $tmpl);
+		include($getTemplatePath);
+
+		return ob_get_clean();
 	}
 }
 ?>
