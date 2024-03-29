@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  */
 
-use Joomla\Language\Text;
+use Joomla\CMS\Language\Text;
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
