@@ -17,10 +17,11 @@ use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
-if(!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+
 jimport( 'joomla.plugin.plugin' );
 jimport( 'joomla.application.component.helper' );
 
@@ -624,7 +625,7 @@ if ((!isset($mapp->longitude))
 					$v = trim($v,'/');
 
 					$tracksA[$k] = array();
-					$tracksA[$k]['file'] = File::exists(JPATH_ROOT.'/'.$v) ? JURI::base().$v : '';
+					$tracksA[$k]['file'] = File::exists(JPATH_ROOT.'/'.$v) ? URI::base().$v : '';
 					$tracksA[$k]['color'] = isset($colors[$k]) ? $colors[$k] : '';
 				}
 			}
@@ -834,13 +835,13 @@ $output .= '</div>';
 								$button->set('name', 'phocamaps');
 								$button->set('methodname', 'js-button');
 								$button->set('options', "window.open(this.href,'win2','width=".$tmpl['windowwidth'].",height=".$tmpl['windowheight'].",menubar=no,resizable=yes'); return false;");
-								$output .= '<a title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" onclick="'. $button->options.'">'.$text.'</a>';
+								$output .= '<a title="'.$text.'"  href="'.Route::_($linkMap . '&tmpl=component').'" onclick="'. $button->options.'">'.$text.'</a>';
 
 
 							} else if ($tmpl['detailwindow'] == 0) {
 
 								// Button
-								JHTML::_('behavior.modal', 'a.modal-button');
+								HTMLHelper::_('behavior.modal', 'a.modal-button');
 								$cssSbox = " #sbox-window {background-color:".$tmpl['mbbordercolor'].";padding:".$tmpl['mbborderwidth']."px} \n"
 								." #sbox-overlay {background-color:".$tmpl['mboverlaycolor'].";} \n";
 
@@ -852,7 +853,7 @@ $output .= '</div>';
 								$button->set('methodname', 'modal-button');
 								$button->set('options', "{handler: 'iframe', size: {x: ".$tmpl['windowwidth'].", y: ".$tmpl['windowheight']."}, overlayOpacity: ".$tmpl['mboverlayopacity'].", classWindow: 'phocamaps-plugin-window', classOverlay: 'phocamaps-plugin-overlay'}");
 
-								$output .= '<a class="modal-button" title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" rel="'. $button->options.'">'.$text.'</a>';
+								$output .= '<a class="modal-button" title="'.$text.'"  href="'.Route::_($linkMap . '&tmpl=component').'" rel="'. $button->options.'">'.$text.'</a>';
 							} else if ($tmpl['detailwindow'] == 2) {
 
 								// Bootstrap Modal
@@ -884,7 +885,7 @@ $output .= '</div>';
 
 								}
 
-								$output .= '<a class="pm-plg-bs-modal-button" title="'.$text.'"  href="'.JRoute::_($linkMap . '&tmpl=component').'" data-bs-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.JRoute::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-bs-target="#'.$item.'">'.$text.'</a>';
+								$output .= '<a class="pm-plg-bs-modal-button" title="'.$text.'"  href="'.Route::_($linkMap . '&tmpl=component').'" data-bs-toggle="modal" data-title="' . $text. '" data-id="' . $this->_plgPhocaMapsNr . '" data-href="'.Route::_($linkMap . '&tmpl=component').'"  data-height='.$tmpl['windowheight'].' data-width='.$tmpl['windowwidth'].'" data-bs-target="#'.$item.'">'.$text.'</a>';
 
 
 							}

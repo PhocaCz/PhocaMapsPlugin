@@ -46,12 +46,12 @@
 		<element>phocamaps</element>
 		<folder>content</folder>
 		<type>plugin</type>
-		<version>5.0.1</version>
-		<infourl title="Phoca Maps Content Plugin 5.0.1">https://www.phoca.cz/</infourl>
+		<version>5.0.2</version>
+		<infourl title="Phoca Maps Content Plugin 5.0.2">https://www.phoca.cz/</infourl>
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/PhocaCz/PhocaMapsPlugin/releases/download/5.0.1/plg_content_phocamaps_v5.0.1.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/PhocaCz/PhocaMapsPlugin/releases/download/5.0.2/plg_content_phocamaps_v5.0.2.zip</downloadurl>
 		</downloads>
-		<sha512>9554c31eff6d35f6e15a7c9999236d54fb56233622d37f0df2c8bc17b903339f27b6fe9443ec81659a41b91df40550956e99c9edd869ecdcfd33892a4971fe55</sha512>
+		<sha512>4d5613be804e28c5c26ed20cf0b90fdb3930dbdae15beef251e38c8e08d7812c6602aeec6c85d3c89508a56efa862492052b927c9dae0c607f9c7e4f2370aaf3</sha512>
 		<tags>
 			<tag>stable</tag>
 		</tags>
