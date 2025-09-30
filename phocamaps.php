@@ -58,7 +58,7 @@ class plgContentPhocaMaps extends CMSPlugin
 
 
 		$app 	= Factory::getApplication();
-		$view	= $app->input->get('view');
+		$view	= $app->getInput()->get('view');
 
 		if ($view == 'tag') { return; }
 

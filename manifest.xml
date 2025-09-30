@@ -46,19 +46,19 @@
 		<element>phocamaps</element>
 		<folder>content</folder>
 		<type>plugin</type>
-		<version>5.0.2</version>
-		<infourl title="Phoca Maps Content Plugin 5.0.2">https://www.phoca.cz/</infourl>
+		<version>5.1.0</version>
+		<infourl title="Phoca Maps Content Plugin 5.1.0">https://www.phoca.cz/</infourl>
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/PhocaCz/PhocaMapsPlugin/releases/download/5.0.2/plg_content_phocamaps_v5.0.2.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/PhocaCz/PhocaMapsPlugin/releases/download/5.1.0/plg_content_phocamaps_v5.1.0.zip</downloadurl>
 		</downloads>
-		<sha512>4d5613be804e28c5c26ed20cf0b90fdb3930dbdae15beef251e38c8e08d7812c6602aeec6c85d3c89508a56efa862492052b927c9dae0c607f9c7e4f2370aaf3</sha512>
+		<sha512>e02b4f3fddd31490c97718a5deb3d48674edc2cf7cd9b54a7d7e7338f6bacb5ab9159c7ed25779768bdaf56f0c8c856e5ffb8765269cd402515c88ef9a337af4</sha512>
 		<tags>
 			<tag>stable</tag>
 		</tags>
 		<maintainer><![CDATA[ Phoca.cz ]]></maintainer>
 		<maintainerurl>https://www.phoca.cz/</maintainerurl>
 		<section>Updates</section>
-		<targetplatform name="joomla" version="(4|5)\.*"/>
+		<targetplatform name="joomla" version="5\.*"/>
 		<client>site</client>
 	</update>
 </updates>
