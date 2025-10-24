@@ -13,7 +13,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Filesystem\File;
+//use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -339,7 +339,7 @@ if($tmpl['enable_kml'] == 1) {
 	jimport( 'joomla.filesystem.folder' );
 	jimport( 'joomla.filesystem.file' );
 	$path = PhocaMapsPath::getPath();
-	if (isset($mapp->kmlfile) && File::exists($path->kml_abs . $mapp->kmlfile)) {
+	if (isset($mapp->kmlfile) && is_file($path->kml_abs . $mapp->kmlfile)) {
 		$tmpl['load_kml'] = $path->kml_rel_full . $mapp->kmlfile;
 	}
 }
@@ -625,7 +625,7 @@ if ((!isset($mapp->longitude))
 					$v = trim($v,'/');
 
 					$tracksA[$k] = array();
-					$tracksA[$k]['file'] = File::exists(JPATH_ROOT.'/'.$v) ? URI::base().$v : '';
+					$tracksA[$k]['file'] = is_file(JPATH_ROOT.'/'.$v) ? URI::base().$v : '';
 					$tracksA[$k]['color'] = isset($colors[$k]) ? $colors[$k] : '';
 				}
 			}
