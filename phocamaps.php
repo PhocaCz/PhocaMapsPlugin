@@ -124,6 +124,7 @@ class plgContentPhocaMaps extends CMSPlugin
 				$tmpl['osm_map_type']			= $paramsC->get( 'osm_map_type', 'osm' );
 				$tmpl['osm_search']				= $paramsC->get( 'osm_search', 0 );
 				$tmpl['osm_easyprint'] 			= $paramsC->get( 'osm_easyprint', 0 );
+				$lazy_loading = (int) $paramsC->get( 'google_maps_lazy_loading', 300 );
 
 				$this->_setPhocaMapsPluginNumber();
 				// Only loaded when the type is really map not a link - see below view=map YES, view=link NO
@@ -358,23 +359,28 @@ if ((!isset($mapp->longitude))
 	# ALL MAPS - Google Maps, OpenStreetMap
 	#########################
 
+	$lazyLoad = "";
+	if ($lazy_loading > 0) {
+		$lazyLoad = "data-lazy-phoca-map";
+	}
+
 	$output .= $tmpl['description'];
 
 	// Map Box
 	if ($tmpl['border'] == '') {
 		$output .= '<div class="phocamaps-box" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'"></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.';height:'.$mapp->height.'"></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.';height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
 		}
 		$output .= '</div>';
 	} else {
 		$output .= '<div class="phocamaps-box phocamaps-box-border'.$tmpl['border'].'" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'"></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.';height:'.$mapp->height.'"></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.';height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
 		}
 		$output .= '</div>';
 		//echo '</div></div></div></div></div>';
