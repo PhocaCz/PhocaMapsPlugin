@@ -30,6 +30,7 @@ class plgContentPhocaMaps extends CMSPlugin
 	protected $_plgPhocaMapsNr	= 0;
 	protected $_loadedBootstrap	= 0;
 	public $plg_name            = "phocamaps";
+	protected $autoloadLanguage = true;
 
 
 	public function __construct(& $subject, $config) {
@@ -75,6 +76,8 @@ class plgContentPhocaMaps extends CMSPlugin
 		$lang = Factory::getLanguage();
 		$lang->load('com_phocamaps.sys');
 		$lang->load('com_phocamaps');
+
+		$wa  = $app->getDocument()->getWebAssetManager();
 
 		// Start if count_matches
 
@@ -124,7 +127,12 @@ class plgContentPhocaMaps extends CMSPlugin
 				$tmpl['osm_map_type']			= $paramsC->get( 'osm_map_type', 'osm' );
 				$tmpl['osm_search']				= $paramsC->get( 'osm_search', 0 );
 				$tmpl['osm_easyprint'] 			= $paramsC->get( 'osm_easyprint', 0 );
-				$lazy_loading = (int) $paramsC->get( 'google_maps_lazy_loading', 300 );
+				$tmpl['lazy_loading'] 			= (int) $paramsC->get( 'google_maps_lazy_loading', 0 );
+
+				$lazyLoadData = '';
+				if ($tmpl['lazy_loading'] > 0) {
+					$lazyLoadData = ' data-lazy-phoca-map';
+				}
 
 				$this->_setPhocaMapsPluginNumber();
 				// Only loaded when the type is really map not a link - see below view=map YES, view=link NO
@@ -359,28 +367,23 @@ if ((!isset($mapp->longitude))
 	# ALL MAPS - Google Maps, OpenStreetMap
 	#########################
 
-	$lazyLoad = "";
-	if ($lazy_loading > 0) {
-		$lazyLoad = "data-lazy-phoca-map";
-	}
-
 	$output .= $tmpl['description'];
 
 	// Map Box
 	if ($tmpl['border'] == '') {
 		$output .= '<div class="phocamaps-box" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:100%;height:'.$mapp->height.'"'.$lazyLoadData.'></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.';height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
+			$output .= '<div id="phocaMap'.$id.'" style="margin:0;padding:0;width:'.$mapp->width.';height:'.$mapp->height.'"'.$lazyLoadData.'></div>';
 		}
 		$output .= '</div>';
 	} else {
 		$output .= '<div class="phocamaps-box phocamaps-box-border'.$tmpl['border'].'" align="center" style="'.$tmpl['stylesite'].'">';
 		if ($tmpl['fullwidth'] == 1) {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:100%;height:'.$mapp->height.'"'.$lazyLoadData.'></div>';
 		} else {
-			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.';height:'.$mapp->height.'" ' . $lazyLoad . '></div>';
+			$output .= '<div id="phocaMap'.$id.'" class="phocamaps-map" style="width:'.$mapp->width.';height:'.$mapp->height.'"'.$lazyLoadData.'></div>';
 		}
 		$output .= '</div>';
 		//echo '</div></div></div></div></div>';
@@ -866,7 +869,10 @@ $output .= '</div>';
 								$item 		= 'phPlgMapsModalDetail' . $this->_plgPhocaMapsNr;
 
 								if($this->_loadedBootstrap == 0) {
-									HTMLHelper::_('script', 'media/plg_content_phocamaps/js/main.js', array('version' => 'auto'));
+
+									$wa->registerAndUseScript('plg_content_phocamaps.main.js', 'media/plg_content_phocamaps/js/main.js', ['version' => 'auto']);
+
+									//HTMLHelper::_('script', 'media/plg_content_phocamaps/js/main.js', array('version' => 'auto'));
 									Factory::getApplication()
 										->getDocument()
 										->getWebAssetManager()
