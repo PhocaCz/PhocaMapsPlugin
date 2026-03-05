@@ -21,11 +21,11 @@ if ($data->displaygps == 1) :
 	<table style="border:0">
 		<tr>
 			<td><strong><?php echo  Text::_('PLG_CONTENT_PHOCAMAPS_GPS');?>: </strong></td>
-			<td><?php echo PhocaMapsHelper::strTrimAll(addslashes($data->gpslatitude));?></td>
+			<td><?php echo PhocaMapsHelper::strTrimAll(addslashes(htmlspecialchars($data->gpslatitude)));?></td>
 		</tr>
 		<tr>
 			<td></td>
-			<td><?php echo PhocaMapsHelper::strTrimAll(addslashes($data->gpslongitude));?></td>
+			<td><?php echo PhocaMapsHelper::strTrimAll(addslashes(htmlspecialchars($data->gpslongitude)));?></td>
 		</tr>
 	</table>
 </div>

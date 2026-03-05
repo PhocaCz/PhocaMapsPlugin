@@ -541,6 +541,13 @@ if ((!isset($mapp->longitude))
 									.'<td>'.PhocaMapsHelper::strTrimAll(addslashes($markerV->gpslongitude)).'</td></tr></table></div>';
 						}*/
 
+						$allowed = '<p><b><i><strong><em><u><br><ul><li><a><img><table><tr><td><span>';
+						$markerV->description = strip_tags($markerV->description, $allowed);
+						//$markerV->description = PhocaMapsHelper::strTrimAll($markerV->description);
+						//$markerV->description = addslashes($markerV->description);
+
+						$markerV->title = htmlspecialchars($markerV->title);
+
 						// Get marker text from tmpl so it can be overriden by template override
 						$text = str_replace(array("\r", "\n", "\t"), '', $this->getTemplateOutput($markerV, "marker"));
 
@@ -553,6 +560,7 @@ if ((!isset($mapp->longitude))
 						if(empty($markerV->description)){
 							$markerV->description = '';
 						}
+
 
 
 						$iconOutput = $map->setMarkerIcon($markerV->icon, $markerV->iconext, $markerV->iurl, $markerV->iobject, $markerV->iurls, $markerV->iobjects, $markerV->iobjectshape);
