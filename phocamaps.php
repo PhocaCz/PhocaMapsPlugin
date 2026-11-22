@@ -79,6 +79,18 @@ class plgContentPhocaMaps extends CMSPlugin
 
 		$wa  = $app->getDocument()->getWebAssetManager();
 
+		// Maps embedded from frame.mapy.cz / frame.mapy.com: let the page scroll until the map is activated
+		if ($app->isClient('site') && stripos($article->text, 'frame.mapy.c') !== false
+			&& ComponentHelper::isEnabled('com_phocamaps')
+			&& (int)ComponentHelper::getParams('com_phocamaps')->get('mapy_guard_embeds', 1) === 1) {
+			$app->getDocument()->addScriptOptions('phocamaps.mapy.embed', array(
+				'hold' => Text::_('COM_PHOCAMAPS_MAPY_EMBED_HOLD'),
+				'lock' => Text::_('COM_PHOCAMAPS_MAPY_EMBED_LOCK')
+			));
+			$wa->registerAndUseStyle('com_phocamaps.mapy', 'media/com_phocamaps/js/mapy/mapy.css', array('version' => 'auto'));
+			$wa->registerAndUseScript('com_phocamaps.mapy.embeds', 'media/com_phocamaps/js/mapy/mapy-embeds.js', array('version' => 'auto'), array('defer' => true), array('core'));
+		}
+
 		// Start if count_matches
 
 		if ($count_matches != 0) {
@@ -100,6 +112,8 @@ class plgContentPhocaMaps extends CMSPlugin
 			require_once( JPATH_ADMINISTRATOR.'/components/com_phocamaps/helpers/phocamaps.php' );
 			require_once( JPATH_ADMINISTRATOR.'/components/com_phocamaps/helpers/phocamapsmap.php' );
 			require_once( JPATH_ADMINISTRATOR.'/components/com_phocamaps/helpers/phocamapsmaposm.php' );
+			require_once( JPATH_ADMINISTRATOR.'/components/com_phocamaps/helpers/phocamapsmapmapy.php' );
+			require_once( JPATH_ADMINISTRATOR.'/components/com_phocamaps/helpers/phocamapstag.php' );
 			//$component 		= 'com_phocamaps';
 			//$table 			=& JTable::getInstance('component');
 			//$table->loadByOption( $component );
@@ -128,6 +142,8 @@ class plgContentPhocaMaps extends CMSPlugin
 				$tmpl['osm_search']				= $paramsC->get( 'osm_search', 0 );
 				$tmpl['osm_easyprint'] 			= $paramsC->get( 'osm_easyprint', 0 );
 				$tmpl['lazy_loading'] 			= (int) $paramsC->get( 'google_maps_lazy_loading', 0 );
+				$tmpl['tags']					= '';
+				$tmpl['tags_mode']				= 0;
 
 				$lazyLoadData = '';
 				if ($tmpl['lazy_loading'] > 0) {
@@ -166,6 +182,8 @@ class plgContentPhocaMaps extends CMSPlugin
 					else if($values[0]=='printroute')		{$tmpl['display_print_route']	= $values[1];}
 					else if($values[0]=='maptype')			{$tmpl['map_type']				= $values[1];}
 					else if($values[0]=='osmmaptype')		{$tmpl['osm_map_type']			= $values[1];}
+					else if($values[0]=='tags')				{$tmpl['tags']					= $values[1];}
+					else if($values[0]=='tagsmode')			{$tmpl['tags_mode']				= (int)$values[1];}
 
 					else if($values[0]=='iframesrc')		{$tmpl['iframesrc']				= $values[1];}
 					else if($values[0]=='iframewidth')		{$tmpl['iframewidth']			= $values[1];}
@@ -197,7 +215,7 @@ class plgContentPhocaMaps extends CMSPlugin
 
 
 						if (empty($mapp)) {
-							echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
+							echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.(int)$idMap.')</div>';
 							return false;
 						}
 
@@ -206,7 +224,7 @@ class plgContentPhocaMaps extends CMSPlugin
 								.' FROM #__phocamaps_marker AS a'
 								.' LEFT JOIN #__phocamaps_map AS c ON c.id = a.catid '
 								.' LEFT JOIN #__phocamaps_icon AS i ON i.id = a.iconext '
-								.' WHERE c.id = '.(int) $idMap
+								.' WHERE '.PhocaMapsTag::getMarkerWhere((int) $idMap, $tmpl['tags'], $tmpl['tags_mode'])
 								.' AND a.published = 1'
 								.' ORDER BY a.ordering ASC';
 						$db->setQuery($query);
@@ -614,8 +632,8 @@ if ((!isset($mapp->longitude))
 
 	} else {
 
-		//OSM tracks
-		if ($tmpl['map_type'] == 2) {
+		//OSM tracks (Leaflet maps: OpenStreetMap, Mapy.com)
+		if ($tmpl['map_type'] == 2 || $tmpl['map_type'] == 3) {
 
 		    $tmpl['fitbounds']   	= $mapp->fitbounds_osm;
 			$textarea               = $mapp->trackfiles_osm;
@@ -653,10 +671,13 @@ if ((!isset($mapp->longitude))
 
 
 
-		$map	= new PhocaMapsMapOsm($id);
-
-
-		$map->osmmaptype = $tmpl['osm_map_type'];
+		if ($tmpl['map_type'] == 3) {
+			$map	= new PhocaMapsMapMapy($id);
+			$map->setMapOptions($mapp);
+		} else {
+			$map	= new PhocaMapsMapOsm($id);
+			$map->osmmaptype = $tmpl['osm_map_type'];
+		}
 
 		$map->loadAPI();
 		$map->loadCoordinatesJS();
@@ -681,7 +702,7 @@ if ((!isset($mapp->longitude))
 					}
 
 					$hStyle = 'font-size:120%;margin: 5px 0px;font-weight:bold;';
-					$text = '<div style="'.$hStyle.'">' . addslashes($markerV->title) . '</div>';
+					$text = '<div style="'.$hStyle.'">' . addslashes(htmlspecialchars($markerV->title)) . '</div>';
 
 					// Try to correct images in description
 					$markerV->description = PhocaMapsHelper::fixImagePath($markerV->description);
@@ -714,8 +735,9 @@ if ((!isset($mapp->longitude))
 
 					$markerIconOptions = array();
 
-					if (isset($markerV->osm_icon) && $markerV->osm_icon != '') {
-						$markerIconOptions = $map->setMarkerIcon($id . 'm'.$markerV->id, $markerV->osm_icon, $markerV->osm_marker_color, $markerV->osm_icon_color, $markerV->osm_icon_prefix, $markerV->osm_icon_spin, $markerV->osm_icon_class);
+					$iconOptions = $map->getMarkerIconOptions($markerV);
+					if ($iconOptions['icon'] != '') {
+						$markerIconOptions = $map->setMarkerIcon($id . 'm'.$markerV->id, $iconOptions['icon'], $iconOptions['markercolor'], $iconOptions['iconcolor'], $iconOptions['prefix'], $iconOptions['spin'], $iconOptions['class']);
 					}
 
 					if ($iM == 0) {
@@ -800,7 +822,7 @@ $output .= '</div>';
 							if (empty($mapp)) {
 
 
-								echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.$idMap.')</div>';
+								echo '<div class="alert alert-error">'. Text::_('PLG_CONTENT_PHOCAMAPS_PLUGIN_ERROR') . ' - '. Text::_('PLG_CONTENT_PHOCAMAPS_MAP_NOT_EXISTS') . ' (ID = '.(int)$idMap.')</div>';
 								return false;
 							}
 
@@ -817,6 +839,7 @@ $output .= '</div>';
 							if ($text =='') {
 								$text = Text::_('PLG_CONTENT_PHOCAMAPS_LINK_TO_MAP');
 							}
+							$text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 
 							// Parameters
 							$tmpl['detailwindow']		= $paramsP->get( 'detail_window', 0 );
@@ -919,9 +942,10 @@ $output .= '</div>';
 						$output = '';
 						$width = isset($tmpl['iframewidth']) && $tmpl['iframewidth'] != '' ? $tmpl['iframewidth'] : '100%';
 						$height = isset($tmpl['iframeheight']) && $tmpl['iframeheight'] != '' ? $tmpl['iframeheight'] : '450';
-						if (isset($tmpl['iframesrc']) && $tmpl['iframesrc'] != '') {
+						// Only http(s) addresses, e.g. javascript: would run in the context of the page
+						if (isset($tmpl['iframesrc']) && preg_match('#^https?://#i', trim($tmpl['iframesrc']))) {
 
-							$output = '<iframe src="'.strip_tags(htmlspecialchars($tmpl['iframesrc'])).'" width="'.strip_tags($width).'" height="'.strip_tags($height).'" frameborder="0" style="border:0" allowfullscreen></iframe>';
+							$output = '<iframe src="'.strip_tags(htmlspecialchars(trim($tmpl['iframesrc']), ENT_QUOTES, 'UTF-8')).'" width="'.htmlspecialchars(strip_tags($width), ENT_QUOTES, 'UTF-8').'" height="'.htmlspecialchars(strip_tags($height), ENT_QUOTES, 'UTF-8').'" frameborder="0" style="border:0" allowfullscreen></iframe>';
 
 						}
 

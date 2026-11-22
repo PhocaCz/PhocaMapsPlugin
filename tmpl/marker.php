@@ -12,7 +12,7 @@ use Joomla\CMS\Language\Text;
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 ?>
-<div class="pmMarkerTitle"><?= addslashes($data->title);?></div>
+<div class="pmMarkerTitle"><?= addslashes(htmlspecialchars($data->title));?></div>
 <div><?php echo PhocaMapsHelper::strTrimAll(addslashes($data->description)); ?></div>
 <?php
 if ($data->displaygps == 1) :

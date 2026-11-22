@@ -17,5 +17,6 @@
 		"Joomla! 1.5 Demo": "https://www.phoca.cz/demo/phoca-maps-demo-component"
 
 	},
-	"projectColor": "#669966"
+	"projectColor": "#669966",
+	"projectBranch": "master"
 }

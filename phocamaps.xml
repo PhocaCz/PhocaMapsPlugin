@@ -2,12 +2,12 @@
 <extension type="plugin" group="content" method="upgrade" version="6.0">
 	<name>plg_content_phocamaps</name>
 	<author>Jan Pavelka (www.phoca.cz)</author>
-	<creationDate>05/03/2026</creationDate>
+	<creationDate>22/11/2026</creationDate>
 	<authorEmail></authorEmail>
 	<authorUrl>https://www.phoca.cz</authorUrl>
 	<copyright>Jan Pavelka</copyright>
 	<license>GNU/GPL</license>
-	<version>6.0.2</version>
+	<version>6.2.0</version>
 	<description>PLG_CONTENT_PHOCAMAPS_DESCRIPTION</description>
 	<projectName>PhocaMapsPlugin</projectName>
 
@@ -19,7 +19,9 @@
 
 	<files>
 		<folder>tmpl</folder>
+		<filename plugin="phocamaps">FOSS.md</filename>
 		<filename plugin="phocamaps">index.html</filename>
+		<filename plugin="phocamaps">LICENSE</filename>
 		<filename plugin="phocamaps">manifest.xml</filename>
 		<filename plugin="phocamaps">phocamaps.php</filename>
 	</files>
@@ -56,6 +58,7 @@
 		</fieldset>
 	</fields>
 	</config>
+	<changelogurl>https://raw.githubusercontent.com/PhocaCz/PhocaMapsPlugin/master/changelog6.xml</changelogurl>
 
 	<updateservers>
 		<server type="extension" name="PLG_CONTENT_PHOCAMAPS" priority="1"><![CDATA[https://raw.githubusercontent.com/PhocaCz/PhocaMapsPlugin/master/manifest.xml]]></server>

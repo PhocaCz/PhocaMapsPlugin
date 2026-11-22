@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelogs>
+	<changelog>
+		<element>phocamaps</element>
+		<type>plugin</type>
+		<version>6.2.0</version>
+		<note>
+			<item><![CDATA[Ready for Phoca Maps 6.2.0]]></item>
+		</note>
+	</changelog>
+</changelogs>
